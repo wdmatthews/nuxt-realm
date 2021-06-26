@@ -6,7 +6,6 @@
 
 <script>
 export default {
-  // middleware: 'require-authenticated',
   head: vm => ({
     title: 'Home',
   }),

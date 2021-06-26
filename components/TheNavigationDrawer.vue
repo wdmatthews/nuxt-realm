@@ -10,7 +10,8 @@
       class="mb-2"
     >
       <v-list-item
-        v-for="link in shownLinks"
+        v-for="link in links"
+        v-show="linkIsVisible(link)"
         :key="link.title"
         :to="link.to"
       >
@@ -28,9 +29,6 @@
       </v-list-item>
     </v-list>
     <div v-show="currentUser">
-      <p class="text-center">
-        {{ currentUser ? currentUser.profile.email : '' }}
-      </p>
       <div class="text-center mb-4">
         <v-btn
           color="primary"
@@ -44,7 +42,7 @@
         </v-btn>
       </div>
     </div>
-    <div v-show="!$store.state.userId">
+    <div v-show="!currentUser">
       <div class="text-center mb-4">
         <AuthenticationDialogButton :is-register="false" />
       </div>
@@ -67,14 +65,16 @@ export default {
         requiresAuthentication: false,
         requiresNoAuthentication: false,
       },
+      {
+        title: 'Account',
+        to: '/account',
+        icon: 'account',
+        requiresAuthentication: true,
+        requiresNoAuthentication: false,
+      },
     ],
   }),
   computed: {
-    shownLinks() {
-      return this.links.filter(link => (link.requiresAuthentication && this.$store.state.userId)
-        || (link.requiresNoAuthentication && !this.$store.state.userId)
-        || (!link.requiresAuthentication && !link.requiresNoAuthentication))
-    },
     currentUser() {
       return this.$store.getters.currentUser(this.$realm)
     },
@@ -82,6 +82,11 @@ export default {
   methods: {
     toggle() {
       this.isVisible = !this.isVisible
+    },
+    linkIsVisible(link) {
+      return (link.requiresAuthentication && this.$store.state.userId)
+        || (link.requiresNoAuthentication && !this.$store.state.userId)
+        || (!link.requiresAuthentication && !link.requiresNoAuthentication)
     },
     async logout() {
       await this.$realm.currentUser.logOut()
