@@ -12,6 +12,7 @@
       @submit.prevent="authenticate"
     >
       <v-text-field
+        ref="emailInput"
         v-model="email"
         label="Email"
         placeholder="username@domain.tld"
@@ -30,6 +31,18 @@
         :rules="passwordRules"
         @keyup.enter="authenticate"
       />
+      <p
+        v-show="!isRegister"
+        class="text-center mb-0"
+      >
+        Forgot password?
+        <a
+          :disabled="!$refs.emailInput || $refs.emailInput.valid"
+          @click.stop="resetPassword"
+        >
+          Send password reset email
+        </a>
+      </p>
     </v-form>
     <v-snackbar
       v-model="registrationSucceeded"
@@ -54,6 +67,34 @@
         <v-btn
           text
           @click="authenticationFailed = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar
+      v-model="passwordResetEmailSucceeded"
+      color="success"
+    >
+      Password reset email sent successfully
+      <template #action>
+        <v-btn
+          text
+          @click="passwordResetEmailSucceeded = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar
+      v-model="passwordResetEmailFailed"
+      color="error"
+    >
+      Error when sending password reset email
+      <template #action>
+        <v-btn
+          text
+          @click="passwordResetEmailFailed = false"
         >
           Close
         </v-btn>
@@ -107,6 +148,8 @@ export default {
     ],
     registrationSucceeded: false,
     authenticationFailed: false,
+    passwordResetEmailSucceeded: false,
+    passwordResetEmailFailed: false,
   }),
   methods: {
     open() {
@@ -135,6 +178,16 @@ export default {
         } catch (error) {
           this.authenticationFailed = true
         }
+      }
+    },
+    async resetPassword() {
+      if (!this.$refs.emailInput.valid) { return }
+      
+      try {
+        await this.$realm.emailPasswordAuth.sendResetPasswordEmail(this.email)
+        this.passwordResetEmailSucceeded = true
+      } catch (error) {
+        this.passwordResetEmailFailed = true
       }
     },
   },

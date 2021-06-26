@@ -70,6 +70,55 @@
             </v-btn>
           </template>
         </v-snackbar>
+        <v-card class="mt-4">
+          <v-card-title class="pa-4">
+            <span class="mx-auto">Reset Password</span>
+          </v-card-title>
+          <v-card-text class="px-4 py-0">
+            Clicking "Reset Password" will email you a link to reset your password
+          </v-card-text>
+          <v-card-actions class="pa-4">
+            <v-spacer />
+            <v-btn
+              color="primary"
+              @click="resetPassword"
+            >
+              <v-icon left>
+                mdi-email
+              </v-icon>
+              Reset Password
+            </v-btn>
+            <v-spacer />
+          </v-card-actions>
+        </v-card>
+        <v-snackbar
+          v-model="passwordResetEmailSucceeded"
+          color="success"
+        >
+          Password reset email sent successfully
+          <template #action>
+            <v-btn
+              text
+              @click="passwordResetEmailSucceeded = false"
+            >
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+        <v-snackbar
+          v-model="passwordResetEmailFailed"
+          color="error"
+        >
+          Error when sending password reset email
+          <template #action>
+            <v-btn
+              text
+              @click="passwordResetEmailFailed = false"
+            >
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
       </v-col>
     </v-row>
   </div>
@@ -95,6 +144,8 @@ export default {
     ],
     nameChangeSucceeded: false,
     nameChangeFailed: false,
+    passwordResetEmailSucceeded: false,
+    passwordResetEmailFailed: false,
   }),
   head: vm => ({
     title: 'Account',
@@ -136,6 +187,14 @@ export default {
         this.nameChangeSucceeded = true
       } catch (error) {
         this.nameChangeFailed = true
+      }
+    },
+    async resetPassword() {
+      try {
+        await this.$realm.emailPasswordAuth.sendResetPasswordEmail(this.currentUser.profile.email)
+        this.passwordResetEmailSucceeded = true
+      } catch (error) {
+        this.passwordResetEmailFailed = true
       }
     },
   },
