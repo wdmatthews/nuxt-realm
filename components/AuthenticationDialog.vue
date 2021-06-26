@@ -33,7 +33,7 @@
     </v-form>
     <v-snackbar
       v-model="registrationSucceeded"
-      color="error"
+      color="success"
     >
       Account created successfully. Please check your email to confirm your account
       <template #action>
