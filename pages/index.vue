@@ -6,6 +6,8 @@
 
 <script>
 export default {
-  
+  head: vm => ({
+    title: 'Home',
+  }),
 }
 </script>
