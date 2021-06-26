@@ -28,6 +28,7 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+    <!-- Instead of using the computed property, you can also access $store.state.userId -->
     <div v-show="currentUser">
       <div class="text-center mb-4">
         <v-btn
@@ -76,6 +77,9 @@ export default {
   }),
   computed: {
     currentUser() {
+      // The current user will now be accessible to the navigation drawer
+      // as a computed property, based on the Vuex store getter "currentUser",
+      // which needs the Realm app instance
       return this.$store.getters.currentUser(this.$realm)
     },
   },
@@ -89,7 +93,9 @@ export default {
         || (!link.requiresAuthentication && !link.requiresNoAuthentication)
     },
     async logout() {
+      // Logout the user
       await this.$realm.currentUser.logOut()
+      // Then erase the user from the store
       this.$store.commit('setUserId', null)
     },
   },
