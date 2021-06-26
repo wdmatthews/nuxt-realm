@@ -4,6 +4,9 @@
       :color="isRegister ? 'accent' : 'primary'"
       @click="$refs.authenticationDialog.open()"
     >
+      <v-icon left>
+        mdi-{{ isRegister ? 'account-plus' : 'login-variant' }}
+      </v-icon>
       {{ isRegister ? 'Register' : 'Login' }}
     </v-btn>
     <AuthenticationDialog

@@ -15,19 +15,42 @@
         :to="link.to"
       >
         <v-list-item-icon>
-          <v-icon v-text="`mdi-${link.icon}`" />
+          <v-icon>
+            mdi-{{ link.icon }}
+          </v-icon>
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title v-text="link.title" />
+          <v-list-item-title>
+            {{ link.title }}
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>
-    <div class="text-center mb-4">
-      <AuthenticationDialogButton :is-register="false" />
+    <div v-show="currentUser">
+      <p class="text-center">
+        {{ currentUser ? currentUser.profile.email : '' }}
+      </p>
+      <div class="text-center mb-4">
+        <v-btn
+          color="primary"
+          outlined
+          @click="logout"
+        >
+          <v-icon left>
+            mdi-logout-variant
+          </v-icon>
+          Logout
+        </v-btn>
+      </div>
     </div>
-    <div class="text-center mb-4">
-      <AuthenticationDialogButton :is-register="true" />
+    <div v-show="!$store.state.userId">
+      <div class="text-center mb-4">
+        <AuthenticationDialogButton :is-register="false" />
+      </div>
+      <div class="text-center mb-4">
+        <AuthenticationDialogButton :is-register="true" />
+      </div>
     </div>
   </v-navigation-drawer>
 </template>
@@ -48,14 +71,21 @@ export default {
   }),
   computed: {
     shownLinks() {
-      return this.links.filter(link => (link.requiresAuthentication && this.$realm.currentUser)
-        || (link.requiresNoAuthentication && !this.$realm.currentUser)
+      return this.links.filter(link => (link.requiresAuthentication && this.$store.state.userId)
+        || (link.requiresNoAuthentication && !this.$store.state.userId)
         || (!link.requiresAuthentication && !link.requiresNoAuthentication))
+    },
+    currentUser() {
+      return this.$store.getters.currentUser(this.$realm)
     },
   },
   methods: {
     toggle() {
       this.isVisible = !this.isVisible
+    },
+    async logout() {
+      await this.$realm.currentUser.logOut()
+      this.$store.commit('setUserId', null)
     },
   },
 }
